@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Analysis Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+        }
+        .input-selector {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .input-type {
+            display: flex;
+            gap: 10px;
+        }
+        .input-type label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .video-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .video-box {
+            width: 48%;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .video-box h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .video-feed {
+            width: 100%;
+            height: auto;
+            background-color: #000;
+            position: relative;
+        }
+        .upload-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .upload-box {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .upload-button {
+            display: inline-block;
+            background-color: #2196F3;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .controls {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .feature-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .feature-label {
+            margin-top: 10px;
+            display: block;
+            font-weight: bold;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e8e8e8;
+            border-radius: 5px;
+        }
+        .file-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        .progress {
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #2196F3;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        @media (max-width: 768px) {
+            .video-container {
+                flex-direction: column;
+            }
+            .video-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Face Analysis Dashboard</h1>
+    </header>
+    
+    <div class="container">
+        <!-- Input selector -->
+        <div class="input-selector">
+            <h2>Select Input Source:</h2>
+            <div class="input-type">
+                <label>
+                    <input type="radio" name="inputSource" value="webcam" checked> Webcam
+                </label>
+                <label>
+                    <input type="radio" name="inputSource" value="image"> Image
+                </label>
+                <label>
+                    <input type="radio" name="inputSource" value="video"> Video
+                </label>
+            </div>
+            
+            <!-- Webcam section, shown by default -->
+            <div id="webcamSection">
+                <p>Using webcam as input source.</p>
+            </div>
+            
+            <!-- Image upload section, hidden by default -->
+            <div id="imageSection" style="display:none;">
+                <input type="file" id="imageUpload" accept="image/*">
+                <button class="upload-button" id="uploadImageBtn">Upload and Process</button>
+                <div class="file-info" id="imageInfo"></div>
+                <div class="progress" id="imageProgress">
+                    <div class="progress-bar" id="imageProgressBar"></div>
+                </div>
+            </div>
+            
+            <!-- Video upload section, hidden by default -->
+            <div id="videoSection" style="display:none;">
+                <input type="file" id="videoUpload" accept="video/*">
+                <button class="upload-button" id="uploadVideoBtn">Upload and Process</button>
+                <div class="file-info" id="videoInfo"></div>
+                <div class="progress" id="videoProgress">
+                    <div class="progress-bar" id="videoProgressBar"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Video displays -->
+        <div class="video-container">
+            <div class="video-box">
+                <h2>Input Feed</h2>
+                <canvas id="inputFeed" class="video-feed"></canvas>
+            </div>
+            
+            <div class="video-box">
+                <h2>Processed Feed</h2>
+                <canvas id="processedFeed" class="video-feed"></canvas>
+            </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <h2>Feature Controls</h2>
+            <p>Toggle features to control what appears in the processed feed:</p>
+            
+            <div class="features" id="featureControls">
+                <div class="feature-item">
+                    <label class="feature-label">Face Blur</label>
+                    <label class="switch">
+                        <input type="checkbox" id="blur">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="feature-item">
+                    <label class="feature-label">Drowsiness Detection</label>
+                    <label class="switch">
+                        <input type="checkbox" id="drowsiness">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="feature-item">
+                    <label class="feature-label">Emotion Recognition</label>
+                    <label class="switch">
+                        <input type="checkbox" id="emotion">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="feature-item">
+                    <label class="feature-label">Gender Detection</label>
+                    <label class="switch">
+                        <input type="checkbox" id="gender">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="feature-item">
+                    <label class="feature-label">Age Estimation</label>
+                    <label class="switch">
+                        <input type="checkbox" id="age">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="feature-item">
+                    <label class="feature-label">Fake Face Detection</label>
+                    <label class="switch">
+                        <input type="checkbox" id="liveliness">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div class="feature-item">
+                    <label class="feature-label">Face Recognition</label>
+                    <label class="switch">
+                        <input type="checkbox" id="face_recognition">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="status" id="connectionStatus">
+                Connection Status: Connecting...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+const inputCanvas = document.getElementById('inputFeed');
+const processedCanvas = document.getElementById('processedFeed');
+const inputCtx = inputCanvas.getContext('2d');
+const processedCtx = processedCanvas.getContext('2d');
+
+const statusEl = document.getElementById('connectionStatus');
+const inputSourceRadios = document.querySelectorAll('input[name="inputSource"]');
+
+const webcamSection = document.getElementById('webcamSection');
+const imageSection = document.getElementById('imageSection');
+const videoSection = document.getElementById('videoSection');
+
+const imageUpload = document.getElementById('imageUpload');
+const videoUpload = document.getElementById('videoUpload');
+const uploadImageBtn = document.getElementById('uploadImageBtn');
+const uploadVideoBtn = document.getElementById('uploadVideoBtn');
+
+const imageInfo = document.getElementById('imageInfo');
+const videoInfo = document.getElementById('videoInfo');
+const imageProgress = document.getElementById('imageProgress');
+const videoProgress = document.getElementById('videoProgress');
+const imageProgressBar = document.getElementById('imageProgressBar');
+const videoProgressBar = document.getElementById('videoProgressBar');
+
+// Current input mode
+let currentInputMode = 'webcam';
+
+// Feature toggles
+const featureToggles = {
+    blur: document.getElementById('blur'),
+    drowsiness: document.getElementById('drowsiness'),
+    emotion: document.getElementById('emotion'),
+    gender: document.getElementById('gender'),
+    age: document.getElementById('age'),
+    liveliness: document.getElementById('liveliness'),
+    face_recognition: document.getElementById('face_recognition')
+};
+
+// Set canvas dimensions
+function setCanvasDimensions() {
+    const width = Math.min(640, window.innerWidth * 0.45);
+    const height = width * 0.75; // 4:3 aspect ratio
+    
+    inputCanvas.width = width;
+    inputCanvas.height = height;
+    processedCanvas.width = width;
+    processedCanvas.height = height;
+    
+    // Reset canvas displays
+    showPlaceholderText();
+}
+
+// WebSocket connection
+let socket;
+let isConnected = false;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
+
+function connectWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//127.0.0.1:8000/ws`;
+    
+    socket = new WebSocket(wsUrl);
+    
+    socket.onopen = function(e) {
+        console.log('WebSocket connection established');
+        statusEl.textContent = 'Connection Status: Connected';
+        statusEl.style.backgroundColor = '#d4edda';
+        statusEl.style.color = '#155724';
+        isConnected = true;
+        reconnectAttempts = 0;
+        
+        // Send the current input mode to the server
+        sendInputModeUpdate(currentInputMode);
+    };
+    
+    socket.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('Received message:', data); // Debug log
+            
+            if (data.type === 'frames') {
+                // Update canvases with received frames
+                updateCanvases(data.original, data.processed);
+            } else if (data.type === 'features') {
+                // Update toggle switches
+                updateFeatureToggles(data.data);
+            } else if (data.type === 'processing_status') {
+                // Update processing status (for uploads)
+                updateProcessingStatus(data);
+            } else if (data.type === 'upload_response') {
+                // Handle upload response
+                handleUploadResponse(data);
+            }
+        } catch (error) {
+            console.error('Error processing message:', error, event.data);
+        }
+    };
+    
+    socket.onclose = function(event) {
+        console.log('WebSocket connection closed', event);
+        statusEl.textContent = 'Connection Status: Disconnected';
+        statusEl.style.backgroundColor = '#f8d7da';
+        statusEl.style.color = '#721c24';
+        isConnected = false;
+        
+        // Attempt to reconnect
+        if (reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            statusEl.textContent = `Connection Status: Reconnecting (${reconnectAttempts}/${maxReconnectAttempts})...`;
+            setTimeout(connectWebSocket, 3000);
+        } else {
+            statusEl.textContent = 'Connection Status: Failed to reconnect. Please refresh the page.';
+        }
+    };
+    
+    socket.onerror = function(error) {
+        console.error('WebSocket error:', error);
+        statusEl.textContent = 'Connection Status: Error';
+        statusEl.style.backgroundColor = '#f8d7da';
+        statusEl.style.color = '#721c24';
+    };
+}
+
+// Update canvases with received images
+function updateCanvases(originalSrc, processedSrc) {
+    if (!originalSrc || !processedSrc) {
+        console.warn('Missing image source data', { originalSrc, processedSrc });
+        return;
+    }
+    
+    const originalImg = new Image();
+    const processedImg = new Image();
+    
+    originalImg.onload = function() {
+        inputCtx.clearRect(0, 0, inputCanvas.width, inputCanvas.height);
+        inputCtx.drawImage(originalImg, 0, 0, inputCanvas.width, inputCanvas.height);
+    };
+    
+    processedImg.onload = function() {
+        processedCtx.clearRect(0, 0, processedCanvas.width, processedCanvas.height);
+        processedCtx.drawImage(processedImg, 0, 0, processedCanvas.width, processedCanvas.height);
+    };
+    
+    originalImg.onerror = function(e) {
+        console.error('Error loading original image:', e);
+    };
+    
+    processedImg.onerror = function(e) {
+        console.error('Error loading processed image:', e);
+    };
+    
+    originalImg.src = originalSrc;
+    processedImg.src = processedSrc;
+}
+
+// Show placeholder text on canvases based on current mode
+function showPlaceholderText() {
+    // Clear canvases
+    inputCtx.fillStyle = '#000';
+    inputCtx.fillRect(0, 0, inputCanvas.width, inputCanvas.height);
+    processedCtx.fillStyle = '#000';
+    processedCtx.fillRect(0, 0, processedCanvas.width, processedCanvas.height);
+    
+    // Add text to input canvas
+    inputCtx.fillStyle = '#fff';
+    inputCtx.font = '16px Arial';
+    inputCtx.textAlign = 'center';
+    
+    if (currentInputMode === 'webcam') {
+        inputCtx.fillText('Waiting for webcam feed...', inputCanvas.width/2, inputCanvas.height/2);
+    } else if (currentInputMode === 'image') {
+        inputCtx.fillText('Select and upload an image...', inputCanvas.width/2, inputCanvas.height/2);
+    } else if (currentInputMode === 'video') {
+        inputCtx.fillText('Select and upload a video...', inputCanvas.width/2, inputCanvas.height/2);
+    }
+    
+    // Add text to processed canvas
+    processedCtx.fillStyle = '#fff';
+    processedCtx.font = '16px Arial';
+    processedCtx.textAlign = 'center';
+    processedCtx.fillText('Waiting for processed feed...', processedCanvas.width/2, processedCanvas.height/2);
+}
+
+// Update feature toggles based on server state
+function updateFeatureToggles(features) {
+    for (const [feature, value] of Object.entries(features)) {
+        if (featureToggles[feature]) {
+            featureToggles[feature].checked = value;
+        }
+    }
+}
+
+// Send feature changes to server
+function sendFeatureUpdate() {
+    if (!isConnected) return;
+    
+    const features = {};
+    for (const [feature, element] of Object.entries(featureToggles)) {
+        features[feature] = element.checked;
+    }
+    
+    socket.send(JSON.stringify({
+        type: 'update_features',
+        features: features
+    }));
+}
+
+// Send input mode update to server
+function sendInputModeUpdate(mode) {
+    if (!isConnected) {
+        console.warn('Cannot update input mode: Not connected to server');
+        return;
+    }
+    
+    console.log('Sending input mode update:', mode);
+    socket.send(JSON.stringify({
+        type: 'update_input_mode',
+        mode: mode
+    }));
+}
+
+// Handle upload response from server
+function handleUploadResponse(data) {
+    console.log('Handling upload response:', data);
+    
+    if (data.file_type === 'image') {
+        if (data.success) {
+            imageInfo.textContent = 'Upload successful, processing...';
+            imageProgress.style.display = 'block';
+            imageProgressBar.style.width = '50%';
+        } else {
+            imageInfo.textContent = `Upload failed: ${data.error || 'Unknown error'}`;
+            imageProgress.style.display = 'none';
+        }
+    } else if (data.file_type === 'video') {
+        if (data.success) {
+            videoInfo.textContent = 'Upload successful, processing...';
+            videoProgress.style.display = 'block';
+            videoProgressBar.style.width = '50%';
+        } else {
+            videoInfo.textContent = `Upload failed: ${data.error || 'Unknown error'}`;
+            videoProgress.style.display = 'none';
+        }
+    }
+}
+
+// Update processing status based on server updates
+function updateProcessingStatus(data) {
+    console.log('Updating processing status:', data);
+    
+    if (data.file_type === 'image') {
+        if (data.progress < 100) {
+            imageProgress.style.display = 'block';
+            imageProgressBar.style.width = `${data.progress}%`;
+            imageInfo.textContent = `Processing: ${data.progress}%`;
+        } else {
+            imageProgress.style.display = 'none';
+            imageInfo.textContent = 'Processing complete';
+            setTimeout(() => { imageInfo.textContent = ''; }, 3000);
+        }
+        
+        // If we have current frame data, update the display
+        if (data.current_frame) {
+            updateCanvases(data.current_frame.original, data.current_frame.processed);
+        }
+    } else if (data.file_type === 'video') {
+        if (data.progress < 100) {
+            videoProgress.style.display = 'block';
+            videoProgressBar.style.width = `${data.progress}%`;
+            videoInfo.textContent = `Processing: ${data.progress}%`;
+        } else {
+            videoProgress.style.display = 'none';
+            videoInfo.textContent = 'Processing complete';
+            setTimeout(() => { videoInfo.textContent = ''; }, 3000);
+        }
+        
+        // If we have current frame data, update the display
+        if (data.current_frame) {
+            updateCanvases(data.current_frame.original, data.current_frame.processed);
+        }
+    }
+}
+
+// Convert file to base64 for upload
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+// Check file size before upload
+function checkFileSize(file, maxSizeMB = 10) {
+    const maxSizeBytes = maxSizeMB * 1024 * 1024;
+    if (file.size > maxSizeBytes) {
+        return false;
+    }
+    return true;
+}
+
+// Upload an image via WebSocket
+async function uploadImage() {
+    if (!isConnected) {
+        imageInfo.textContent = 'Not connected to server';
+        return;
+    }
+    
+    const file = imageUpload.files[0];
+    if (!file) {
+        imageInfo.textContent = 'Please select an image file first';
+        return;
+    }
+    
+    if (!file.type.startsWith('image/')) {
+        imageInfo.textContent = 'Please select a valid image file';
+        return;
+    }
+    
+    // Check file size (limit to 10MB)
+    if (!checkFileSize(file, 10)) {
+        imageInfo.textContent = 'File too large (max 10MB)';
+        return;
+    }
+    
+    imageInfo.textContent = 'Uploading...';
+    imageProgress.style.display = 'block';
+    imageProgressBar.style.width = '0%';
+    
+    try {
+        // Convert file to base64
+        const base64Data = await fileToBase64(file);
+        
+        console.log('Uploading image file:', file.name, 'type:', file.type);
+        
+        // Send via WebSocket
+        socket.send(JSON.stringify({
+            type: 'upload_file',
+            file_type: 'image',
+            file_name: file.name,
+            file_data: base64Data,
+            content_type: file.type
+        }));
+        
+        imageProgressBar.style.width = '25%';
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        imageInfo.textContent = `Upload failed: ${error.message}`;
+        imageProgress.style.display = 'none';
+    }
+}
+
+// Upload a video via WebSocket
+async function uploadVideo() {
+    if (!isConnected) {
+        videoInfo.textContent = 'Not connected to server';
+        return;
+    }
+    
+    const file = videoUpload.files[0];
+    if (!file) {
+        videoInfo.textContent = 'Please select a video file first';
+        return;
+    }
+    
+    if (!file.type.startsWith('video/')) {
+        videoInfo.textContent = 'Please select a valid video file';
+        return;
+    }
+    
+    // Check file size (limit to 50MB for videos)
+    if (!checkFileSize(file, 50)) {
+        videoInfo.textContent = 'File too large (max 50MB)';
+        return;
+    }
+    
+    videoInfo.textContent = 'Uploading...';
+    videoProgress.style.display = 'block';
+    videoProgressBar.style.width = '0%';
+    
+    try {
+        // Convert file to base64
+        const base64Data = await fileToBase64(file);
+        
+        console.log('Uploading video file:', file.name, 'type:', file.type);
+        
+        // Send via WebSocket
+        socket.send(JSON.stringify({
+            type: 'upload_file',
+            file_type: 'video',
+            file_name: file.name,
+            file_data: base64Data,
+            content_type: file.type
+        }));
+        
+        videoProgressBar.style.width = '25%';
+    } catch (error) {
+        console.error('Error uploading video:', error);
+        videoInfo.textContent = `Upload failed: ${error.message}`;
+        videoProgress.style.display = 'none';
+    }
+}
+
+// Display file preview in canvas
+function handleFilePreview(input, canvasContext) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    canvasContext.clearRect(0, 0, inputCanvas.width, inputCanvas.height);
+                    canvasContext.drawImage(img, 0, 0, inputCanvas.width, inputCanvas.height);
+                };
+                img.onerror = function() {
+                    console.error('Error loading image preview');
+                    showPlaceholderText();
+                };
+                img.src = e.target.result;
+            };
+            
+            reader.onerror = function() {
+                console.error('Error reading file');
+                showPlaceholderText();
+            };
+            
+            reader.readAsDataURL(file);
+        } else if (file.type.startsWith('video/')) {
+            const video = document.createElement('video');
+            video.style.display = 'none';
+            
+            video.onloadedmetadata = function() {
+                try {
+                    setTimeout(() => {
+                        video.currentTime = 1.0; // Try to get a frame at 1 second
+                    }, 100);
+                } catch (e) {
+                    console.error('Error setting video current time:', e);
+                    showPlaceholderText();
+                    document.body.removeChild(video);
+                }
+            };
+            
+            video.onseeked = function() {
+                try {
+                    canvasContext.clearRect(0, 0, inputCanvas.width, inputCanvas.height);
+                    canvasContext.drawImage(video, 0, 0, inputCanvas.width, inputCanvas.height);
+                } catch (e) {
+                    console.error('Error drawing video frame:', e);
+                    showPlaceholderText();
+                } finally {
+                    URL.revokeObjectURL(video.src);
+                    document.body.removeChild(video);
+                }
+            };
+            
+            video.onerror = function() {
+                console.error('Error loading video preview');
+                showPlaceholderText();
+                if (document.body.contains(video)) {
+                    document.body.removeChild(video);
+                }
+            };
+            
+            document.body.appendChild(video);
+            video.src = URL.createObjectURL(file);
+        }
+    }
+}
+
+// Update UI based on selected input source
+function updateInputSourceUI() {
+    inputSourceRadios.forEach(radio => {
+        if (radio.checked) {
+            currentInputMode = radio.value;
+            
+            console.log('Switching to input mode:', currentInputMode);
+            
+            // Hide all sections first
+            webcamSection.style.display = 'none';
+            imageSection.style.display = 'none';
+            videoSection.style.display = 'none';
+            
+            // Show the selected section
+            if (currentInputMode === 'webcam') {
+                webcamSection.style.display = 'block';
+            } else if (currentInputMode === 'image') {
+                imageSection.style.display = 'block';
+            } else if (currentInputMode === 'video') {
+                videoSection.style.display = 'block';
+            }
+            
+            // Reset canvases to show appropriate placeholder text
+            showPlaceholderText();
+            
+            // Reset progress information
+            imageInfo.textContent = '';
+            videoInfo.textContent = '';
+            imageProgress.style.display = 'none';
+            videoProgress.style.display = 'none';
+            
+            // Tell the server to switch mode
+            if (isConnected) {
+                sendInputModeUpdate(currentInputMode);
+            } else {
+                console.warn('Cannot update server: not connected');
+            }
+        }
+    });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    setCanvasDimensions();
+    connectWebSocket();
+    
+    // Set up feature toggle event listeners
+    for (const [feature, element] of Object.entries(featureToggles)) {
+        element.addEventListener('change', sendFeatureUpdate);
+    }
+    
+    // Set up input source radio event listeners
+    inputSourceRadios.forEach(radio => {
+        radio.addEventListener('change', updateInputSourceUI);
+    });
+    
+    // Set up upload button event listeners
+    uploadImageBtn.addEventListener('click', uploadImage);
+    uploadVideoBtn.addEventListener('click', uploadVideo);
+    
+    // Set up file input preview
+    imageUpload.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            handleFilePreview(this, inputCtx);
+            imageInfo.textContent = `Selected: ${this.files[0].name}`;
+        }
+    });
+    
+    videoUpload.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            handleFilePreview(this, inputCtx);
+            videoInfo.textContent = `Selected: ${this.files[0].name}`;
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', setCanvasDimensions);
+    
+    // Initialize the UI based on default input source
+    updateInputSourceUI();
+});
+    </script>
+</body>
+</html>

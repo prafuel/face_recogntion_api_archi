@@ -1,4 +1,4 @@
-
+# face_recogntion_api_archi
 
 To Run Whole Project
 here is steps of command, have to follow
@@ -43,4 +43,3 @@ run following gradio app
 
 Update config file path : ``` config/config.py ```
 here are option to select which option you want to activate
-# face_recogntion_api_archi
