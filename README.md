@@ -7,8 +7,8 @@
 
 ## Step 1: Clone the Repository
 ```
-git clone <repository_url>
-cd <repository_name>
+git clone https://github.com/prafuel/face_recogntion_api_archi.git
+cd face_recogntion_api_archi
 ```
 
 ## Step 2: Setup the Environment
