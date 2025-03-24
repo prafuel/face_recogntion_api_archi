@@ -73,7 +73,3 @@ Modify the desired options and save the file.
 - Ensure that the virtual environment is active before running any API.
 - Check for version conflicts and resolve them by updating the environment as needed.
 - Review logs and error messages for hints on configuration issues.
-
-## Support
-For any issues or questions, feel free to reach out through the project repository or contact the maintainers.
-
