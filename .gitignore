@@ -1,2 +1,4 @@
-/db
+/db/*.npy
 /proj_venv
+/db/volumes
+access_token_gitlab.txt

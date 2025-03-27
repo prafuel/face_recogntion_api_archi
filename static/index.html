@@ -384,7 +384,7 @@ const maxReconnectAttempts = 5;
 
 function connectWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//127.0.0.1:8000/ws`;
+    const wsUrl = `${protocol}//127.0.0.1:8080/ws`;
     
     socket = new WebSocket(wsUrl);
     

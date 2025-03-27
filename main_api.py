@@ -381,4 +381,4 @@ async def draw_results_on_frame(frame, face_results, selected_features):
     return result_frame
 
 if __name__ == "__main__":
-    uvicorn.run("main_api:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main_api:app", host="0.0.0.0", port=8080, reload=True)

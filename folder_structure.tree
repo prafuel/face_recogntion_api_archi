@@ -1,0 +1,97 @@
+face_recognition_ws
+├─ api
+│  ├─ age_prediction
+│  │  ├─ age_prediction_api.py
+│  │  ├─ config
+│  │  │  └─ config.py
+│  │  ├─ models
+│  │  │  └─ age_model
+│  │  │     ├─ age_net.caffemodel
+│  │  │     └─ deploy_age.prototxt
+│  │  └─ src
+│  │     └─ utility.py
+│  ├─ drowsiness
+│  │  ├─ config
+│  │  │  └─ config.py
+│  │  ├─ drowsiness_api.py
+│  │  ├─ models
+│  │  │  └─ shape_predictor_68_face_landmarks.dat
+│  │  └─ src
+│  │     └─ utility.py
+│  ├─ emotion
+│  │  ├─ config
+│  │  │  └─ config.py
+│  │  ├─ emotion_api.py
+│  │  └─ src
+│  │     └─ utility.py
+│  ├─ gender_prediction
+│  │  ├─ config
+│  │  │  └─ config.py
+│  │  ├─ gender_prediction_api.py
+│  │  ├─ models
+│  │  │  └─ gender_model
+│  │  │     ├─ deploy_gender.prototxt
+│  │  │     └─ gender_net.caffemodel
+│  │  └─ src
+│  │     └─ utility.py
+│  ├─ liveliness
+│  │  ├─ config
+│  │  │  └─ config.py
+│  │  ├─ liveliness_api.py
+│  │  ├─ models
+│  │  │  ├─ anti_spoof_models
+│  │  │  │  ├─ 2.7_80x80_MiniFASNetV2.pth
+│  │  │  │  └─ 4_0_0_80x80_MiniFASNetV1SE.pth
+│  │  │  └─ detection_model
+│  │  │     ├─ Widerface-RetinaFace.caffemodel
+│  │  │     └─ deploy.prototxt
+│  │  └─ src
+│  │     ├─ anti_spoof_predict.py
+│  │     ├─ data_io
+│  │     │  ├─ functional.py
+│  │     │  └─ transform.py
+│  │     ├─ generate_face_image_patches.py
+│  │     ├─ model_lib
+│  │     │  ├─ MiniFASNet.py
+│  │     │  ├─ MultiFTNet.py
+│  │     └─ utility.py
+│  └─ recognition
+│     ├─ config
+│     │  └─ config.py
+│     ├─ recognition_api.py
+│     └─ src
+│        └─ utility.py
+├─ client.py
+├─ client_tracking.py
+├─ config
+│  └─ config.py
+├─ db
+│  ├─ detailed_data.npy
+│  ├─ face_vectors_mediapipe.npy
+│  └─ face_vectors_mtcnn.npy
+├─ detection
+│  └─ face_detection.py
+├─ main_api.py
+
+
+
+// FOlder structure
+face_recognition_ws
+├─ api
+│  ├─ age_prediction
+│  ├─ drowsiness
+│  ├─ emotion
+│  ├─ gender_prediction
+│  ├─ liveliness
+│  └─ recognition
+├─ config
+│  ├─ __pycache__
+│  │  └─ config.cpython-310.pyc
+│  └─ config.py
+├─ db
+│  ├─ detailed_data.npy
+│  ├─ face_vectors_mediapipe.npy
+│  └─ face_vectors_mtcnn.npy
+├─ detection
+│  └─ face_detection.py
+├─ main_api.py

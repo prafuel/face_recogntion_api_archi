@@ -6,6 +6,8 @@ import os
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 
+from pymilvus import connections, Collection
+
 def crop_image(image, points: list, image_shape=(224, 224)):
     x, y, w, h = points
 
@@ -50,24 +52,53 @@ def get_face_vector(model, frame, points):
         return face_vector
     except Exception as e:
         raise ValueError("Error in Face Vector : ", e)
+    
 
-def identify_user(face_vector, trained_face_vectors):
+# Connect to Milvus
+def connect_milvus():
+    connections.connect("default", host="localhost", port="19530")
+    return Collection("face_data")
+
+# def identify_user(face_vector, trained_face_vectors):
+#     try:
+#         # crop_face = crop_image(frame, points)
+#         # crop_face = np.expand_dims(crop_face, axis=0)
+
+#         # face_vector = model.predict(
+#         #     crop_face
+#         # )
+
+#         # face_vector = get_face_vector(model, frame, points)
+
+#         face_scores = cosine_similarity(face_vector, trained_face_vectors)
+#         max_prob = np.max(face_scores)
+#         index = np.argmax(face_scores)
+
+#         return max_prob, index
+#     except Exception as e:
+#         print("Error in identify_users function : ", e)
+#         return 0, 0
+
+def identify_user(face_vector):
     try:
-        # crop_face = crop_image(frame, points)
-        # crop_face = np.expand_dims(crop_face, axis=0)
+        collection = connect_milvus()
+        collection.load()
+        
+        results = collection.search(
+            data=[face_vector.tolist()[0]], # Convert NumPy array to a list
+            anns_field="face_vector", # Search against the "face_vector" field
+            param={"metric_type": "L2", "nprobe": 10},
+            limit=1,
+            output_fields=["name", "age", "gender"]
+        )
+        
+        if results and results[0]:
+            match = results[0][0]
 
-        # face_vector = model.predict(
-        #     crop_face
-        # )
-
-        # face_vector = get_face_vector(model, frame, points)
-
-        face_scores = cosine_similarity(face_vector, trained_face_vectors)
-        max_prob = np.max(face_scores)
-        index = np.argmax(face_scores)
-
-        return max_prob, index
+            print("identify user : ", match.entity.get("name"))
+            return match.distance, match.entity.get("name")
+        return None, None
     except Exception as e:
-        print("Error in identify_users function : ", e)
-        return 0, 0
+        print("Error in identify_user function: ", e)
+        return None, None
     

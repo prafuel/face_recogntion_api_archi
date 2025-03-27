@@ -1,0 +1,11 @@
+download and start milvus container
+download file from : "https://github.com/milvus-io/milvus/blob/master/deployments/docker/standalone/docker-compose.yml"
+docker compose up -d
+
+
+
+To stop the Milvus instance:
+bash: docker compose down
+
+To remove all data:
+bash: docker volume prune -f

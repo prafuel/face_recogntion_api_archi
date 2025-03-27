@@ -20,9 +20,11 @@ DROWSINESS_PREDICTION_WS_API_URL = "ws://0.0.0.0:8006/ws/drowsiness"
 
 # Configation for Features
 RECOGNITION = True
-LIVELINESS = True
+LIVELINESS = False
 AGE = False
 GENDER = False
 EMOTION = False
 DROWSINESS = False
 BLUR = False
+
+
